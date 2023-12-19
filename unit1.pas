@@ -273,8 +273,10 @@ begin
     end
 
   else
+  begin
     speaktext('Service restarted successfully',0);
     ShowMessage('Service restarted successfully');
+  end;
   rs1s.Text := GetServiceStatusAsString(combobox1.Text);
 
 end;
@@ -328,8 +330,10 @@ begin
     end
 
   else
+  begin
     speaktext('Service restarted successfully',0);
     ShowMessage('Service restarted successfully');
+  end;
 
   rs2s.Text := GetServiceStatusAsString(combobox2.text);
 end;
