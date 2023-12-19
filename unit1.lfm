@@ -238,7 +238,7 @@ object Form1: TForm1
     OnChange = ComboBox2Change
   end
   object Timer1: TTimer
-    Interval = 20000
+    Interval = 5000
     OnTimer = Timer1Timer
     Left = 424
     Top = 48
