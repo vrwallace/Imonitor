@@ -6,9 +6,7 @@ interface
 
 uses
   Windows, Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, JwaWinSvc, JwaWinType,IniFiles, strutils, synaser,comobj,process;
-
-
+  ExtCtrls, ComCtrls, JwaWinSvc, JwaWinType, IniFiles, strutils, synaser, comobj, process;
 
 type
   // Define a pointer to an array of ENUM_SERVICE_STATUS
@@ -84,8 +82,8 @@ type
     procedure ThreadTerminationHandler(Sender: TObject);
     procedure UpdateEditBoxWithError(const Msg: string);
     function GetServiceStatusAsString(ServiceName: string): string;
-    function RebootComputer: Boolean;
-    function SpeakText(const TextToSpeak: WideString; Rate: Integer): Boolean;
+    function RebootComputer: boolean;
+    function SpeakText(const TextToSpeak: WideString; Rate: integer): boolean;
     procedure PopulateServiceList(ComboBox: TComboBox);
 
 
@@ -161,7 +159,7 @@ begin
     // Update the user interface or perform other cleanup operations
     // For example, updating Edit1 to indicate that the thread has stopped
     Edit1.Text := 'Tail Stopped';
-    speaktext(edit1.text+' on '+ExtractFileName(edit2.text),0);
+    speaktext(edit1.Text + ' on ' + ExtractFileName(edit2.Text), 0);
     Edit1.Color := clred; // Reset the color or set to a specific one
 
     // If you have any other operations to perform on thread termination, add them here
@@ -266,19 +264,22 @@ end;
 
 procedure TForm1.Buttonrs1Click(Sender: TObject);
 begin
-  if not restartservice(combobox1.Text) then
+  if (trim(combobox1.Text) <> 'N/A') then
   begin
-  speaktext( 'Failed to restart the service',0);
-    ShowMessage('Failed to restart the service')
+    if not restartservice(combobox1.Text) then
+    begin
+      speaktext('Failed to restart the service', 0);
+      ShowMessage('Failed to restart the service');
     end
 
-  else
-  begin
-    speaktext('Service restarted successfully',0);
-    ShowMessage('Service restarted successfully');
-  end;
-  rs1s.Text := GetServiceStatusAsString(combobox1.Text);
+    else
+    begin
+      speaktext('Service restarted successfully', 0);
+      ShowMessage('Service restarted successfully');
+    end;
+    rs1s.Text := GetServiceStatusAsString(combobox1.Text);
 
+  end;
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
@@ -288,7 +289,7 @@ var
 begin
   if Assigned(TailThread) and not TailThread.Finished then
   begin
-    speaktext('The file tailing is already in progress.',0);
+    speaktext('The file tailing is already in progress.', 0);
     ShowMessage('The file tailing is already in progress.');
     Exit;
   end;
@@ -304,7 +305,7 @@ begin
       TailThread := TFileTailThread.Create(True, filename);
       TailThread.FLastSize := FileStream.Size; // Set FLastSize to current file size
       edit1.Text := 'Tail Started';
-     speaktext(edit1.text+' on '+ExtractFileName(edit2.text),0);
+      speaktext(edit1.Text + ' on ' + ExtractFileName(edit2.Text), 0);
       edit1.color := clgreen;
     finally
       FileStream.Free;
@@ -315,28 +316,31 @@ begin
   end
   else
   begin
-  speaktext( ExtractFileName(edit2.text)+ ' Not found!',0);
+    speaktext(ExtractFileName(edit2.Text) + ' Not found!', 0);
     ShowMessage(filename + ' Not found!');
+  end;
 end;
- end;
 
 procedure TForm1.Buttonrs2Click(Sender: TObject);
 begin
-
-  if not restartservice(combobox2.text) then
+  if (trim(combobox2.Text) <> 'N/A') then
   begin
-  speaktext('Failed to restart the service',0);
-    ShowMessage('Failed to restart the service')
+    if not restartservice(combobox2.Text) then
+    begin
+      speaktext('Failed to restart the service', 0);
+      ShowMessage('Failed to restart the service');
     end
 
-  else
-  begin
-    speaktext('Service restarted successfully',0);
-    ShowMessage('Service restarted successfully');
-  end;
+    else
+    begin
+      speaktext('Service restarted successfully', 0);
+      ShowMessage('Service restarted successfully');
+    end;
 
-  rs2s.Text := GetServiceStatusAsString(combobox2.text);
+    rs2s.Text := GetServiceStatusAsString(combobox2.Text);
+  end;
 end;
+
 
 procedure TForm1.Button4Click(Sender: TObject);
 begin
@@ -346,9 +350,9 @@ begin
     TailThread.WaitFor;          // Wait for the thread to finish execution
     // Do not explicitly free the thread here as FreeOnTerminate is set to True
     TailThread := nil;
-   // edit1.Text := 'Tail Stopped';
-  // speaktext(edit1.text+' on '+ExtractFileName(edit2.text),0);
-   // edit1.color := clred;
+    // edit1.Text := 'Tail Stopped';
+    // speaktext(edit1.text+' on '+ExtractFileName(edit2.text),0);
+    // edit1.color := clred;
 
   end;
 end;
@@ -390,34 +394,35 @@ begin
 end;
 
 procedure TForm1.Button9Click(Sender: TObject);
-    begin
-   try
-    if MessageDlg('Confirm', 'Are you sure you want to reboot the system?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+begin
+  try
+    if MessageDlg('Confirm', 'Are you sure you want to reboot the system?',
+      mtConfirmation, [mbYes, mbNo], 0) = mrYes then
     begin
       if RebootComputer then
-      speaktext('System reboot initiated successfully.',0)
-       // showmessage('System reboot initiated successfully.')
+        speaktext('System reboot initiated successfully.', 0)
+      // showmessage('System reboot initiated successfully.')
       else
-        begin
-        showmessage('Failed to initiate system reboot.');
-        speaktext( 'Failed to initiate system reboot.',0);
-        end;
+      begin
+        ShowMessage('Failed to initiate system reboot.');
+        speaktext('Failed to initiate system reboot.', 0);
+      end;
 
     end;
     //else
-      //showmessage('Reboot cancelled by user.');
+    //showmessage('Reboot cancelled by user.');
 
-      speaktext('Reboot cancelled by user.',0);
+    speaktext('Reboot cancelled by user.', 0);
   except
     on E: Exception do
       WriteLn(E.ClassName, ': ', E.Message);
   end;
 end;
 
- function tform1.SpeakText(const TextToSpeak: WideString; Rate: Integer): Boolean;
+function tform1.SpeakText(const TextToSpeak: WideString; Rate: integer): boolean;
 var
-  SpVoice: OleVariant;
-  SavedCW: Word;
+  SpVoice: olevariant;
+  SavedCW: word;
 begin
   Result := False;
 
@@ -441,7 +446,7 @@ begin
       finally
         // Restore FPU mask
         Set8087CW(SavedCW);
-       // VarClear(SpVoice); // Release the COM object
+        // VarClear(SpVoice); // Release the COM object
       end;
     except
       // Handle any exceptions here, if needed
@@ -451,7 +456,7 @@ end;
 
 
 
-  function tform1.RebootComputer: Boolean;
+function tform1.RebootComputer: boolean;
 var
   Token: THandle;
   TokenPrivileges: TTokenPrivileges;
@@ -461,7 +466,8 @@ begin
   Result := False;
 
   // First, obtain the necessary security privileges to shut down the system
-  if OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, Token) then
+  if OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or
+    TOKEN_QUERY, Token) then
   begin
     // Get the LUID for shutdown privilege
     LookupPrivilegeValue(nil, 'SeShutdownPrivilege', TokenPrivileges.Privileges[0].Luid);
@@ -470,7 +476,8 @@ begin
     TokenPrivileges.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
 
     // Adjust token privileges to include shutdown privilege
-    if AdjustTokenPrivileges(Token, False, TokenPrivileges, SizeOf(PrevTokenPrivileges), PrevTokenPrivileges, ReturnLength) then
+    if AdjustTokenPrivileges(Token, False, TokenPrivileges,
+      SizeOf(PrevTokenPrivileges), PrevTokenPrivileges, ReturnLength) then
     begin
       // Attempt to reboot the system
       Result := ExitWindowsEx(EWX_REBOOT or EWX_FORCE, 0);
@@ -479,7 +486,6 @@ begin
     CloseHandle(Token);
   end;
 end;
-
 
 
 
@@ -522,20 +528,19 @@ begin
     end
     else
     begin
-      speaktext('Text not found.',0);
+      speaktext('Text not found.', 0);
       ShowMessage('Text not found.');
     end;
   end
   else
   begin
-    speaktext('Text not found.',0);
+    speaktext('Text not found.', 0);
     ShowMessage('Text not found.');
   end;
 end;
 
 procedure TForm1.CheckBoxspeechenabledChange(Sender: TObject);
-
-  var
+var
   IniFile: TIniFile;
 begin
   IniFile := TIniFile.Create(GetIniFilePath);
@@ -547,34 +552,45 @@ begin
 end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
-
-  var
+var
   IniFile: TIniFile;
 begin
   IniFile := TIniFile.Create(GetIniFilePath);
   try
-    IniFile.Writestring('Settings', 'Service1', combobox1.text);
+    IniFile.Writestring('Settings', 'Service1', combobox1.Text);
   finally
     IniFile.Free;
   end;
 
 
-  Buttonrs1.caption:='Restart '+combobox1.text;
+  Buttonrs1.Caption := 'Restart ' + combobox1.Text;
+  if combobox1.Text = 'N/A' then
+  begin
+    rs1s.Text := 'N/A';
+    rs1s.color := clblue;
+  end
+  else rs1s.text:='';
 end;
 
 procedure TForm1.ComboBox2Change(Sender: TObject);
-
-   var
+var
   IniFile: TIniFile;
 begin
   IniFile := TIniFile.Create(GetIniFilePath);
   try
-    IniFile.Writestring('Settings', 'Service2', combobox2.text);
+    IniFile.Writestring('Settings', 'Service2', combobox2.Text);
   finally
     IniFile.Free;
   end;
 
-  Buttonrs2.caption:='Restart '+combobox2.text;
+  Buttonrs2.Caption := 'Restart ' + combobox2.Text;
+  if combobox2.Text = 'N/A' then
+  begin
+    rs2s.Text := 'N/A';
+    rs2s.color := clblue;
+  end
+  else rs2s.text:='';
+
 end;
 
 procedure TForm1.comComboBox1Change(Sender: TObject);
@@ -588,9 +604,9 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 var
   IniFile: TIniFile;
-   AProcess: TProcess;
+  AProcess: TProcess;
   AStringList: TStringList;
-  I: Integer;
+  I: integer;
 begin
 
   // Load from INI file in user's documents folder
@@ -598,10 +614,11 @@ begin
   try
     Edit2.Text := IniFile.ReadString('Settings', 'LastLogFile',
       'c:\logs\somefilename.log');
-         CheckBoxSpeechenabled.Checked := IniFile.ReadBool('Settings', 'SpeechEnabled', False);
+    CheckBoxSpeechenabled.Checked :=
+      IniFile.ReadBool('Settings', 'SpeechEnabled', False);
 
-          combobox2.text:=  IniFile.ReadString('Settings', 'Service2','N/A');
-          combobox1.text:=  IniFile.ReadString('Settings', 'Service1','N/A');
+    combobox2.Text := IniFile.ReadString('Settings', 'Service2', 'N/A');
+    combobox1.Text := IniFile.ReadString('Settings', 'Service1', 'N/A');
 
   finally
     IniFile.Free;
@@ -609,12 +626,22 @@ begin
 
   ButtonSearchforward.Default := True;
 
-  if combobox1.text<>'N/A' then   Buttonrs1.caption:='Restart '+combobox1.text;
+  if combobox1.Text <> 'N/A' then  Buttonrs1.Caption := 'Restart ' + combobox1.Text;
   populateservicelist(combobox1);
-  if combobox2.text<>'N/A' then  Buttonrs2.caption:='Restart '+combobox2.text;
+  if combobox2.Text <> 'N/A' then  Buttonrs2.Caption := 'Restart ' + combobox2.Text;
   populateservicelist(combobox2);
+  if combobox1.Text = 'N/A' then
+  begin
+    rs1s.Text := 'N/A';
+    rs1s.color := clblue;
+  end;
+  if combobox2.Text = 'N/A' then
+  begin
+    rs2s.Text := 'N/A';
+    rs2s.color := clblue;
+  end;
 
-  Timer1Timer(timer1);
+
   form1.Refresh;
 
 end;
@@ -626,7 +653,7 @@ var
   SCManager: SC_HANDLE;
   ServiceStatusArray: PEnumServiceStatusArray;
   BytesNeeded, ServicesReturned, ResumeHandle: DWORD;
-  I: Integer;
+  I: integer;
 begin
   SCManager := OpenSCManager(nil, nil, SC_MANAGER_ENUMERATE_SERVICE);
   if SCManager = 0 then
@@ -644,12 +671,14 @@ begin
     GetMem(ServiceStatusArray, BytesNeeded);
     try
       ResumeHandle := 0;
-      if EnumServicesStatus(SCManager, SERVICE_WIN32, SERVICE_STATE_ALL, @ServiceStatusArray^[0],
-        BytesNeeded, BytesNeeded, ServicesReturned, ResumeHandle) then
+      if EnumServicesStatus(SCManager, SERVICE_WIN32, SERVICE_STATE_ALL,
+        @ServiceStatusArray^[0], BytesNeeded, BytesNeeded, ServicesReturned,
+        ResumeHandle) then
       begin
         ComboBox.Items.BeginUpdate;
         try
           ComboBox.Items.Clear;
+          ComboBox.Items.Add('N/A');
           for I := 0 to ServicesReturned - 1 do
           begin
             ComboBox.Items.Add(ServiceStatusArray^[I].lpServiceName);
@@ -740,14 +769,30 @@ end;
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
 
-
   ComComboBox1.Items.CommaText := GetSerialPortNames();
-  if    GetServiceStatusAsString(combobox1.text)<>rs1s.Text then speaktext(combobox1.Text+' '+GetServiceStatusAsString(combobox1.text)+' on '+ExtractFileName(edit2.text) ,0);
-   if    GetServiceStatusAsString(combobox2.text)<>rs2s.Text then speaktext(combobox2.Text+' '+GetServiceStatusAsString(combobox2.Text)+' on '+ExtractFileName(edit2.text),0);
-  rs1s.Text := GetServiceStatusAsString(combobox1.text);
-  if rs1s.text='Running' then rs1s.color:=clgreen else rs1s.color:=clred;
-  rs2s.Text := GetServiceStatusAsString(combobox2.text);
-   if rs2s.text='Running' then rs2s.color:=clgreen else rs2s.color:=clred;
+  if (trim(combobox1.Text) <> 'N/A') then
+  begin
+    if GetServiceStatusAsString(combobox1.Text) <> rs1s.Text then
+      speaktext(combobox1.Text + ' ' + GetServiceStatusAsString(combobox1.Text) +
+        ' on ' + ExtractFileName(edit2.Text), 0);
+    rs1s.Text := GetServiceStatusAsString(combobox1.Text);
+    if rs1s.Text = 'Running' then rs1s.color := clgreen
+    else
+      rs1s.color := clred;
+
+  end;
+  if (trim(combobox2.Text) <> 'N/A') then
+  begin
+    if GetServiceStatusAsString(combobox2.Text) <> rs2s.Text then
+      speaktext(combobox2.Text + ' ' + GetServiceStatusAsString(combobox2.Text) +
+        ' on ' + ExtractFileName(edit2.Text), 0);
+    rs2s.Text := GetServiceStatusAsString(combobox2.Text);
+    if rs2s.Text = 'Running' then rs2s.color := clgreen
+    else
+      rs2s.color := clred;
+
+  end;
+
 end;
 
 end.
